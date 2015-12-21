@@ -7,6 +7,12 @@
 //
 
 #import "AppDelegate.h"
+#import "TabBarViewController.h"
+#import "MainNavigationViewController.h"
+#import <YRSideViewController.h>
+#import "LeftViewController.h"
+
+
 
 @interface AppDelegate ()
 
@@ -18,6 +24,21 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
+    
+    
+    TabBarViewController *maintabBar = [[TabBarViewController alloc] init];
+    MainNavigationViewController *mainNav = [[MainNavigationViewController alloc] initWithRootViewController:maintabBar];
+    
+    LeftViewController *leftVC = [[LeftViewController alloc] init];
+    
+    YRSideViewController *sideController = [[YRSideViewController alloc] init];
+    sideController.rootViewController = mainNav;
+    sideController.leftViewController = leftVC;
+    
+    sideController.leftViewShowWidth = 200;
+    
+    sideController.rightViewShowWidth = 0;
+    self.window.rootViewController = sideController;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;

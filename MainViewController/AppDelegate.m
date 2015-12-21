@@ -35,7 +35,7 @@
     sideController.rootViewController = mainNav;
     sideController.leftViewController = leftVC;
     
-    sideController.leftViewShowWidth = 200;
+    sideController.leftViewShowWidth = ([UIScreen mainScreen].bounds.size.width / 3) * 2;
     
     sideController.rightViewShowWidth = 0;
     self.window.rootViewController = sideController;

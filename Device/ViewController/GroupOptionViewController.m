@@ -1,22 +1,24 @@
 //
-//  LeftViewController.m
+//  GroupOptionViewController.m
 //  IntellectHome
 //
 //  Created by 吴卓 on 15/12/21.
 //  Copyright © 2015年 吴卓. All rights reserved.
 //
 
-#import "LeftViewController.h"
+#import "GroupOptionViewController.h"
 
-@interface LeftViewController ()
+@interface GroupOptionViewController ()
 
 @end
 
-@implementation LeftViewController
+@implementation GroupOptionViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
+    
+    
 }
 
 

@@ -9,7 +9,7 @@
 #import "AppDelegate.h"
 #import "TabBarViewController.h"
 #import "MainNavigationViewController.h"
-#import <YRSideViewController.h>
+
 #import "LeftViewController.h"
 
 
@@ -31,14 +31,14 @@
     
     LeftViewController *leftVC = [[LeftViewController alloc] init];
     
-    YRSideViewController *sideController = [[YRSideViewController alloc] init];
-    sideController.rootViewController = mainNav;
-    sideController.leftViewController = leftVC;
+    _sideViewController = [[YRSideViewController alloc] init];
+    _sideViewController.rootViewController = mainNav;
+    _sideViewController.leftViewController = leftVC;
     
-    sideController.leftViewShowWidth = ([UIScreen mainScreen].bounds.size.width / 3) * 2;
+    _sideViewController.leftViewShowWidth = ([UIScreen mainScreen].bounds.size.width / 3) * 2;
     
-    sideController.rightViewShowWidth = 0;
-    self.window.rootViewController = sideController;
+    _sideViewController.rightViewShowWidth = 0;
+    self.window.rootViewController = _sideViewController;
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;

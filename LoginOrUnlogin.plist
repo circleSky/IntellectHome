@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>unlogin</key>
+	<array>
+		<dict>
+			<key>userRegister</key>
+			<string>用户注册</string>
+		</dict>
+		<dict>
+			<key>userLogin</key>
+			<string>用户登录</string>
+		</dict>
+		<dict>
+			<key>findPassword</key>
+			<string>找回密码</string>
+		</dict>
+	</array>
+	<key>login</key>
+	<array>
+		<dict>
+			<key>userInfo</key>
+			<string>修改个人信息</string>
+		</dict>
+		<dict>
+			<key>myOwnCode</key>
+			<string>我的二维码</string>
+		</dict>
+		<dict>
+			<key>changePassword</key>
+			<string>修改密码</string>
+		</dict>
+		<dict>
+			<key>notification</key>
+			<string>通知</string>
+		</dict>
+		<dict>
+			<key>shoppingCart</key>
+			<string>购物车</string>
+		</dict>
+	</array>
+</dict>
+</plist>

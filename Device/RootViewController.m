@@ -8,6 +8,8 @@
 
 #import "RootViewController.h"
 #import "DeviceTableViewCell.h"
+#import "AppDelegate.h"
+#import "LeftViewController.h"
 
 //群组选择小界面
 #import "GroupOptionViewController.h"
@@ -32,7 +34,23 @@
 - (void)viewWillAppear:(BOOL)animated {
     [self creatTitleBtn];
     [self creatRightBarbutton];
+    UIBarButtonItem *btn = [[UIBarButtonItem alloc] initWithTitle:@"doubi" style:UIBarButtonItemStylePlain target:self action:@selector(click)];
+    self.parentViewController.navigationItem.leftBarButtonItem = btn;
 }
+- (void)click {
+    AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication]delegate];
+    YRSideViewController *sideViewController = [delegate sideViewController];
+    [sideViewController setRootViewMoveBlock:^(UIView *rootView, CGRect orginFrame, CGFloat xoffset) {
+        
+//        LeftViewController *left = [[LeftViewController alloc] init];
+//                left.selectDelegate = self;
+        //使用简单的平移动画
+        rootView.frame=CGRectMake(xoffset, orginFrame.origin.y, orginFrame.size.width, orginFrame.size.height);
+//        sideViewController.needSwipeShowMenu = YES;
+    }];
+    [sideViewController showLeftViewController:true];
+}
+
 
 #pragma markcreatTitleBtn
 - (void)creatTitleBtn {

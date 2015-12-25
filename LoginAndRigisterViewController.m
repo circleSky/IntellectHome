@@ -65,7 +65,6 @@
     
     [userText addTarget:self action:@selector(textFieldDidChange) forControlEvents:UIControlEventEditingChanged];
     [self.view addSubview:userText];
-    
     UILabel *userTextName = [self setupTextName:@"电话号码\\邮箱" frame:userText.frame];
     self.userTextName = userTextName;
     [self.view addSubview:userTextName];

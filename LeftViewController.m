@@ -24,7 +24,6 @@
     NSMutableArray *arrayM;
 }
 @end
-
 @implementation LeftViewController
 
 - (void)viewDidLoad {
@@ -34,9 +33,6 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(getNotification:) name:@"loginOrnot" object:nil];
     
     [self creatTableView];
-    
-    
-    
 }
 - (void)getNotification:(NSNotification *)sender {
     NSLog(@"%@",sender.object);
@@ -50,8 +46,6 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [self loadData];
-    
-    
 }
 - (void)loadData {
     arrayM = [[NSMutableArray alloc] init];
@@ -73,10 +67,7 @@
         [arrayM addObject:[arrayBack[2] objectForKey:@"changePassword"]];
         [arrayM addObject:[arrayBack[3] objectForKey:@"notification"]];
         [arrayM addObject:[arrayBack[4] objectForKey:@"shoppingCart"]];
-        
     }
-    
-    
 }
 #pragma mark-创建tableView
 - (void)creatTableView {
@@ -103,24 +94,18 @@
     cell.backgroundColor = [UIColor clearColor];
     cell.textLabel.text = arrayM[indexPath.row];
     cell.textLabel.textColor = [UIColor whiteColor];
-    
-    //cell选中后的view
-//    UIView *view = [[UIView alloc] initWithFrame:cell.frame];
-//    view.backgroundColor = [UIColor clearColor];
-//    cell.selectedBackgroundView = view;
-    
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    //
+    YRSideViewController *side = (YRSideViewController *)(self.parentViewController);
+    [side hideSideViewController:YES];
     NSUserDefaults *userdefult = [NSUserDefaults standardUserDefaults];
     if ([userdefult objectForKey:@"states"] == nil) {//说明此时还没有登录成功
-        
         if (indexPath.row == 0) {
             RigestrViewController *regist = [[RigestrViewController alloc] init];
             [self presentViewController:regist animated:YES completion:^{
                 NSLog(@"===&&&&&&&&&&========");
-                
-                
             }];
         }
         else if(indexPath.row == 1) {
@@ -128,11 +113,8 @@
             
             [self presentViewController:next animated:YES completion:^{
                 NSLog(@"====================");
-                
-                
             }];
         }
-        
     }
     else {
         switch (indexPath.row) {
@@ -164,8 +146,5 @@
                 break;
         }
     }
-    
-    
-    
 }
 @end

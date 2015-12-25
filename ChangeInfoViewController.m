@@ -9,28 +9,24 @@
 #import "ChangeInfoViewController.h"
 #import "InputText.h"
 #import "PrefixHeader.pch"
+#import "GetDataFromServer.h"
+#import <UIImageView+WebCache.h>
+#import "CallbackDelegate.h"
 
-@interface ChangeInfoViewController ()
+#define SCR_H [UIScreen mainScreen].bounds.size.height
+#define SCR_W [UIScreen mainScreen].bounds.size.width
 
+@interface ChangeInfoViewController ()<UITextFieldDelegate,CallbackDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate>
+{
+    UIImageView *iconImageView;
+    NSData *uploadImageData;
+}
 @property NSDictionary *data;
-    
 @property UITextField *nickTextField;
-@property UILabel *nickTextFieldName;
-    
 @property UITextField *emailAddressTextField;
-@property UILabel *emailAddressTextFieldName;
-    
 @property UITextField *genderTextField;
-@property UILabel *genderTextFieldName;
-    
 @property UITextField *phoneNumberTextField;
-@property UILabel *phoneNumberTextFieldName;
-    
 @property UITextField *userIdTextField;
-@property UILabel *userIdTextFieldName;
-    
-    
-    
 
 @end
 
@@ -38,131 +34,397 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self creatUserIconImageView];
     self.view.backgroundColor = [UIColor whiteColor];
     NSUserDefaults *userdefults = [NSUserDefaults standardUserDefaults];
     NSDictionary *dict = [userdefults objectForKey:@"USER_INFO"];
     NSLog(@"%@",dict);
     _data = dict[@"Data"];
-    [self creatUI];
+    
+    [self creatDismisBtn];
+    [self creatTextField];
     
 }
-- (void)creatUI {
-    CGFloat centerX = self.view.width * 0.5;
-    InputText *inputText = [[InputText alloc] init];
-    CGFloat userY = 100;
-    UITextField *nickName = [inputText setupWithIcon:nil textY:userY centerX:centerX point:nil];
-    nickName.delegate = self;
-    
-    _nickTextField = nickName;
-    _nickTextField.tag = 100;
-    [_nickTextField setReturnKeyType:UIReturnKeyNext];
-    
-    [nickName addTarget:self action:@selector(textFieldDidChange) forControlEvents:UIControlEventEditingChanged];
-    [self.view addSubview:nickName];
-    
-    UILabel *nickTextfieldName = [self setupTextName:@"电话号码\\邮箱" frame:userText.frame];
-    self.nickTextFieldName = nickTextfieldName;
-    [self.view addSubview:nickTextfieldName];
+#pragma mark 创建dismis按钮
+- (void)creatDismisBtn {
+    UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, 50, 30)];
+    [btn setTitle:@"取消" forState:UIControlStateNormal];
+    btn.backgroundColor = [UIColor redColor];
+    [btn addTarget:self action:@selector(dismisBtn_touch) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:btn];
 }
-
-- (UILabel *)setupTextName:(NSString *)textName frame:(CGRect)frame
-{
-    UILabel *textNameLabel = [[UILabel alloc] init];
-    textNameLabel.text = textName;
-    textNameLabel.font = [UIFont systemFontOfSize:16];
-    textNameLabel.textColor = [UIColor grayColor];
-    textNameLabel.frame = frame;
-    return textNameLabel;
-}
-#pragma mark - UITextFieldDelegate
-- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField
-{
-    if (textField == self.userText) {
-        [self diminishTextName:self.userTextName];
-        //        [self restoreTextName:self.emailTextName textField:self.emailText];
-        [self restoreTextName:self.passwordTextName textField:self.passwordText];
-    }  else if (textField == self.passwordText) {
-        [self diminishTextName:self.passwordTextName];
-        [self restoreTextName:self.userTextName textField:self.userText];
-        //        [self restoreTextName:self.emailTextName textField:self.emailText];
-    }
-    //    else if (textField == self.emailText) {
-    //        [self diminishTextName:self.emailTextName];
-    //        [self restoreTextName:self.userTextName textField:self.userText];
-    //        [self restoreTextName:self.passwordTextName textField:self.passwordText];
-    //    }
-    return YES;
-}
-- (BOOL)textFieldShouldReturn:(UITextField *)textField
-{
-    NSLog(@"textFieldShouldReturn==========");
-    if (textField == self.userText) {
-        return [self.passwordText becomeFirstResponder];
-    }else {
-        [self restoreTextName:self.passwordTextName textField:self.passwordText];
-        return [self.passwordText resignFirstResponder];
-    }
-}
-- (void)diminishTextName:(UILabel *)label
-{
-    [UIView animateWithDuration:0.5 animations:^{
-        label.transform = CGAffineTransformMakeTranslation(0, -16);
-        label.font = [UIFont systemFontOfSize:9];
+- (void)dismisBtn_touch {
+    [self dismissViewControllerAnimated:YES completion:^{
+        
     }];
 }
-- (void)restoreTextName:(UILabel *)label textField:(UITextField *)textFieled
-{
-    [self textFieldTextChange:textFieled];
-    if (self.chang) {
-        [UIView animateWithDuration:0.5 animations:^{
-            label.transform = CGAffineTransformIdentity;
-            label.font = [UIFont systemFontOfSize:16];
+#pragma mark- 创建头像imageView
+- (void)creatUserIconImageView {
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapGester:)];
+    
+    iconImageView = [[UIImageView alloc] initWithFrame:CGRectMake((SCR_W / 5) * 2, 50, SCR_W / 5, SCR_W / 5)];
+    iconImageView.layer.borderWidth = 1;
+//    iconImageView.layer.masksToBounds = YES;
+    iconImageView.clipsToBounds = YES;
+    iconImageView.userInteractionEnabled = YES;
+    iconImageView.layer.borderColor = [[UIColor orangeColor] CGColor];
+    iconImageView.layer.cornerRadius = SCR_W / 10;
+    [iconImageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://10.5.155.200/Images/User/HeaderImage/d903ddcd-6eb2-44f1-a23d-fd772f6d4cbf635866595581582447.jpg"]] placeholderImage:[UIImage imageNamed:@"xiaoren"]];
+    
+//    iconImageView.image = [UIImage imageNamed:@"xiaoren"];
+//    iconImageView.backgroundColor = [UIColor redColor];
+    tap.numberOfTapsRequired = 1;
+    [iconImageView addGestureRecognizer:tap];
+    
+    [self.view addSubview:iconImageView];
+}
+#pragma mark- iconImageView添加的手势
+- (void)tapGester:(UITapGestureRecognizer *)sender {
+    NSLog(@"====================");
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"选择要上传的图片" message:@"请选择打开的类型" preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction *actionOpenFile = [UIAlertAction actionWithTitle:@"打开相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self openFile];
+    }];
+    UIAlertAction *actionTakePhoto = [UIAlertAction actionWithTitle:@"打开相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self takePhoto];
+    }];
+    
+    [alert addAction:actionOpenFile];
+    [alert addAction:actionTakePhoto];
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+#pragma mark 打开相册
+- (void)openFile {
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+    picker.delegate = self;
+    //设置选择后的图片可被编辑
+    picker.allowsEditing = YES;
+    [self presentViewController:picker animated:YES completion:nil];
+}
+#pragma mark 打开相机
+- (void)takePhoto {
+    UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+        picker.delegate = self;
+        //设置拍照后的图片可被编辑
+        picker.allowsEditing = YES;
+        picker.sourceType = sourceType;
+        [self presentViewController:picker animated:YES completion:nil];
+    }
+    else {
+        NSLog(@"模拟其中无法打开照相机,请在真机中使用");
+    }
+}
+#pragma mark 当选择一张图片后进入这里
+-(void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info{
+    
+    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+    
+    //当选择的类型是图片
+    if ([type isEqualToString:@"public.image"])
+    {
+        //先把图片转成NSData
+        UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+        NSData *data;
+        if (UIImagePNGRepresentation(image) == nil)
+        {
+            data = UIImageJPEGRepresentation(image, 1.0);
+        }
+        else
+        {
+            data = UIImagePNGRepresentation(image);
+        }
+        
+        uploadImageData = data;
+        
+      
+        iconImageView.image = image;
+        //        //图片保存的路径
+        //        //这里将图片放在沙盒的documents文件夹中
+        //        NSString * DocumentsPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+        //
+        //        //文件管理器
+        //        NSFileManager *fileManager = [NSFileManager defaultManager];
+        //
+        //        //把刚刚图片转换的data对象拷贝至沙盒中 并保存为image.png
+        //        [fileManager createDirectoryAtPath:DocumentsPath withIntermediateDirectories:YES attributes:nil error:nil];
+        //        [fileManager createFileAtPath:[DocumentsPath stringByAppendingString:@"/image.png"] contents:data attributes:nil];
+        //
+        //        //得到选择后沙盒中图片的完整路径
+        //        filePath = [[NSString alloc]initWithFormat:@"%@%@",DocumentsPath,  @"/image.png"];
+        //
+        //        //关闭相册界面
+        //        [picker dismissModalViewControllerAnimated:YES];
+        //
+        //        //创建一个选择后图片的小图标放在下方
+        //        //类似微薄选择图后的效果
+        //        UIImageView *smallimage = [[UIImageView alloc] initWithFrame:
+        //                                    CGRectMake(50, 120, 40, 40)];
+        //
+        //        smallimage.image = image;
+        //        //加在视图中
+        //        [self.view addSubview:smallimage];
+        
+        [picker dismissViewControllerAnimated:YES completion:^{
+                        [self uploadFile];
+            
+//            [self uploadWithPut];
         }];
     }
+    
 }
-- (void)textFieldTextChange:(UITextField *)textField
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
 {
-    if (textField.text.length != 0) {
-        self.chang = NO;
-    } else {
-        self.chang = YES;
+    NSLog(@"您取消了选择图片");
+    [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+
+- (void)uploadFile {
+    // 接收文件上传的地址
+    NSString *urlString = @"http://10.5.155.200/UserAction/UploadUserHeaderImageHandler.ashx";
+    
+    // 服务器端上传表单项的名称，一定与服务器端接收文件的名一致
+    // 文件上传时，对于文件参数需要准备的三个数据：
+    // 参数名
+    NSString *uploadInputFieldName = @"ImageFileUrl";
+    // 文件名
+    NSString *sourceFileName = @"fileName.jpg";
+    // 要上传文件的文件内容
+    NSData* data = uploadImageData;
+    
+    
+    
+    // 要传递的其他的POST的参数
+    NSDictionary *params = @{
+                             @"UserId": _data[@"UserId"]                 // 其他要POST传递的参数
+                             
+                             };
+    
+    
+    
+    
+    
+    /*********************以上按需要修改，下面的代码为固定代码，一般不需要修改*************************/
+    
+    
+    //分界线的标识符
+    NSString *TWITTERFON_FORM_BOUNDARY = @"AaB03x";
+    //根据url初始化request
+    NSMutableURLRequest* request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString] cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:10];
+    //分界线 --AaB03x
+    NSString *MPboundary=[[NSString alloc]initWithFormat:@"--%@",TWITTERFON_FORM_BOUNDARY];
+    //结束符 AaB03x--
+    NSString *endMPboundary=[[NSString alloc]initWithFormat:@"%@--",MPboundary];
+    
+    
+    
+    
+    
+    //要上传的文件
+    //    NSString *imageFileName = [params objectForKey:uploadInputFieldName];
+    //得到图片的data
+    
+    
+    //[NSData dataWithContentsOfFile:imageFileName];
+    
+    //http body的字符串
+    NSMutableString *body=[[NSMutableString alloc]init];
+    //参数的集合的所有key的集合
+    NSArray *keys= [params allKeys];
+    
+    //遍历keys
+    for(int i=0;i<[keys count];i++)
+    {
+        //得到当前key
+        NSString *key=[keys objectAtIndex:i];
+        //如果key不是pic，说明value是字符类型，比如name：Boris
+        //        if(![key isEqualToString:uploadInputFieldName])
+        //        {
+        //添加分界线，换行
+        [body appendFormat:@"%@\r\n",MPboundary];
+        //添加字段名称，换2行
+        [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"\r\n\r\n",key];
+        //添加字段的值
+        [body appendFormat:@"%@\r\n",[params objectForKey:key]];
+        //        }
+    }
+    
+    ////添加分界线，换行
+    [body appendFormat:@"%@\r\n",MPboundary];
+    //声明pic字段，文件名为boris.png
+    [body appendFormat:@"Content-Disposition: form-data; name=\"%@\"; filename=\"%@\"\r\n", uploadInputFieldName, sourceFileName];    // 文件名
+    //声明上传文件的格式
+    [body appendFormat:@"Content-Type: image\r\n\r\n"];
+    
+    //声明结束符：--AaB03x--
+    NSString *end=[[NSString alloc]initWithFormat:@"\r\n%@",endMPboundary];
+    //声明myRequestData，用来放入http body
+    NSMutableData *myRequestData=[NSMutableData data];
+    //将body字符串转化为UTF8格式的二进制
+    [myRequestData appendData:[body dataUsingEncoding:NSUTF8StringEncoding]];
+    //将image的data加入
+    [myRequestData appendData:data];
+    //加入结束符--AaB03x--
+    [myRequestData appendData:[end dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    //设置HTTPHeader中Content-Type的值
+    NSString *content=[[NSString alloc]initWithFormat:@"multipart/form-data; boundary=%@",TWITTERFON_FORM_BOUNDARY];
+    //设置HTTPHeader
+    [request setValue:content forHTTPHeaderField:@"Content-Type"];
+    //设置Content-Length
+    [request setValue:[NSString stringWithFormat:@"%ld", [myRequestData length]] forHTTPHeaderField:@"Content-Length"];
+    //设置http body
+    [request setHTTPBody:myRequestData];
+    //http method
+    [request setHTTPMethod:@"POST"];
+    
+    
+    
+    
+    /**************************
+     
+     执行上传，处理上传后返回的内容
+     
+     **************************/
+    
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        if (error) {
+            NSLog(@"Error: %@", error);
+        }
+        
+        NSString *resString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"%@", resString);
+        
+    }];
+    [task resume];
+}
+
+
+- (void)creatTextField {
+    
+    UILabel *nickLabel = [[UILabel alloc] initWithFrame:CGRectMake(SCR_W / 6 , (SCR_H / 10) * 2 - 30, 50, 30)];
+    nickLabel.text = @"昵称";
+    _nickTextField = [[UITextField alloc] initWithFrame:CGRectMake(SCR_W / 6, (SCR_H / 10) * 2, (SCR_W / 6) * 3, 50)];
+    _nickTextField.text = _data[@"Alias"];
+    _nickTextField.textAlignment = NSTextAlignmentCenter;
+    _nickTextField.layer.borderColor = [[UIColor blueColor] CGColor];
+    _nickTextField.layer.borderWidth = 1;
+    _nickTextField.userInteractionEnabled = NO;
+    
+    UIButton *nickBtn = [[UIButton alloc] initWithFrame:CGRectMake((SCR_W / 6) * 4, (SCR_H / 10) * 2, (SCR_W / 6), 50)];
+    nickBtn.backgroundColor = [UIColor redColor];
+    nickBtn.tag = 100;
+    [nickBtn addTarget:self action:@selector(btn_touch:) forControlEvents:UIControlEventTouchUpInside];
+    [nickBtn setTitle:@"修改" forState:UIControlStateNormal];
+    [self.view addSubview:nickBtn];
+    [self.view addSubview:nickLabel];
+    [self.view addSubview:_nickTextField];
+    
+    
+    UILabel *emailLabel = [[UILabel alloc] initWithFrame:CGRectMake(SCR_W / 6 , CGRectGetMaxY(_nickTextField.frame), 50, 30)];
+    emailLabel.text = @"邮箱";
+    _emailAddressTextField = [[UITextField alloc] initWithFrame:CGRectMake(SCR_W / 6, CGRectGetMaxY(emailLabel.frame), (SCR_W / 6) * 3, 50)];
+    
+    if ([_data[@"EmailAddress"] isEqualToString:@""]) {
+        _emailAddressTextField.placeholder = @"该用户暂时未绑定邮箱";
+//        _emailAddressTextField.text = @"该用户暂时未绑定邮箱";
+    }
+    else {
+        _emailAddressTextField.text = _data[@"EmailAddress"];
+    }
+    _emailAddressTextField.textAlignment = NSTextAlignmentCenter;
+    _emailAddressTextField.layer.borderColor = [[UIColor blueColor] CGColor];
+    _emailAddressTextField.layer.borderWidth = 1;
+    _emailAddressTextField.userInteractionEnabled = NO;
+    UIButton *emailBtn = [[UIButton alloc] initWithFrame:CGRectMake((SCR_W / 6) * 4, CGRectGetMaxY(emailLabel.frame), (SCR_W / 6), 50)];
+    emailBtn.backgroundColor = [UIColor redColor];
+    emailBtn.tag = 101;
+    [emailBtn addTarget:self action:@selector(btn_touch:) forControlEvents:UIControlEventTouchUpInside];
+    [emailBtn setTitle:@"修改" forState:UIControlStateNormal];
+    [self.view addSubview:emailBtn];
+    [self.view addSubview:emailLabel];
+    [self.view addSubview:_emailAddressTextField];
+    
+    
+    UILabel *phonelLabel = [[UILabel alloc] initWithFrame:CGRectMake(SCR_W / 6 , CGRectGetMaxY(_emailAddressTextField.frame), 50, 30)];
+    phonelLabel.text = @"电话";
+    _phoneNumberTextField = [[UITextField alloc] initWithFrame:CGRectMake(SCR_W / 6, CGRectGetMaxY(phonelLabel.frame), (SCR_W / 6) * 3, 50)];
+    
+    if ([_data[@"PhoneNumber"] isEqualToString:@""]) {
+        _phoneNumberTextField.text = @"该用户暂时未绑定邮箱";
+    }
+    else {
+        _phoneNumberTextField.text = _data[@"PhoneNumber"];
+    }
+    _phoneNumberTextField.textAlignment = NSTextAlignmentCenter;
+    _phoneNumberTextField.layer.borderColor = [[UIColor blueColor] CGColor];
+    _phoneNumberTextField.layer.borderWidth = 1;
+    _phoneNumberTextField.userInteractionEnabled = NO;
+    UIButton *phoneBtn = [[UIButton alloc] initWithFrame:CGRectMake((SCR_W / 6) * 4, CGRectGetMaxY(phonelLabel.frame), (SCR_W / 6), 50)];
+    phoneBtn.backgroundColor = [UIColor redColor];
+    phoneBtn.tag = 102;
+    [phoneBtn addTarget:self action:@selector(btn_touch:) forControlEvents:UIControlEventTouchUpInside];
+    [phoneBtn setTitle:@"修改" forState:UIControlStateNormal];
+    [self.view addSubview:phoneBtn];
+    [self.view addSubview:phonelLabel];
+    [self.view addSubview:_phoneNumberTextField];
+    
+    
+    UIButton *okBtn = [[UIButton alloc] initWithFrame:CGRectMake(SCR_W / 3, CGRectGetMaxY(_phoneNumberTextField.frame) + 100, SCR_W / 3, 50)];
+    [okBtn setTitle:@"保存" forState:UIControlStateNormal];
+    [okBtn addTarget:self action:@selector(okBtn_touch) forControlEvents:UIControlEventTouchUpInside];
+    okBtn.backgroundColor = [UIColor orangeColor];
+    [self.view addSubview:okBtn];
+    
+}
+- (void)btn_touch:(UIButton *)sender {
+
+    if (sender.tag == 100) {
+        [_nickTextField becomeFirstResponder];
+        _nickTextField.userInteractionEnabled = YES;
+    }
+    if (sender.tag == 101) {
+        _emailAddressTextField.userInteractionEnabled = YES;
+    }
+    if (sender.tag == 102) {
+        _phoneNumberTextField.userInteractionEnabled = YES;
     }
 }
-- (void)textFieldDidChange
-{
-    if (self.userText.text.length != 0 && self.passwordText.text.length != 0) {
-        //        NSLog(@"%@",self.userText.text);
-        self.loginBtn.enabled = YES;
-    } else {
-        self.loginBtn.enabled = NO;
-    }
-}
-- (void)textFieldDidEndEditing:(UITextField *)textField {
-    if (_passwordText.text.length!=0 && _userText.text.length!= 0) {
-        NSLog(@"%@========%@======",_userText.text,_passwordText.text);
-    }
-}
-#pragma mark 密码判断
-- (BOOL) validatePassword:(NSString *)passWord
-{
-    NSString *passWordRegex = @"^[a-zA-Z0-9]{6,20}+$";
-    NSPredicate *passWordPredicate = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",passWordRegex];
-    return [passWordPredicate evaluateWithObject:passWord];
-}
-#pragma mark 手机号码判断
-- (BOOL) validateMobile:(NSString *)mobile
-{
-    //手机号以13， 15，18开头，八个 \d 数字字符
-    NSString *phoneRegex = @"^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
-    NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",phoneRegex];
-    return [phoneTest evaluateWithObject:mobile];
-}
-#pragma mark - touchesBegan
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
+
+
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [self.view endEditing:YES];
-    [self restoreTextName:self.userTextName textField:self.userText];
-    [self restoreTextName:self.passwordTextName textField:self.passwordText];
 }
+
+- (void)okBtn_touch {
+    
+//    [GetDataFromServer getUserInfoWithUserId:_data[@"UserId"] CallBackDelegate:self];
+    
+    [GetDataFromServer updateUserInfoWithUserId:_data[@"UserId"] PhoneNumber:_phoneNumberTextField.text EmailAddress:_emailAddressTextField.text NickName:_nickTextField.text Gender:_data[@"Gender"] CallBackDelegate:self];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    NSLog(@"%@",_nickTextField.text);
+}
+
+
+
+
+
+
+
+
+
+
 
 @end

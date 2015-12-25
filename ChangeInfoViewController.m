@@ -34,18 +34,29 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [self creatUserIconImageView];
+    
     self.view.backgroundColor = [UIColor whiteColor];
+    [self loadData];
+    [self creatUserIconImageView];
+    [self creatDismisBtn];
+    [self creatTextField];
+    
+    
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    
+    
+}
+- (void)loadData {
     NSUserDefaults *userdefults = [NSUserDefaults standardUserDefaults];
     NSDictionary *dict = [userdefults objectForKey:@"USER_INFO"];
     NSLog(@"%@",dict);
     _data = dict[@"Data"];
-    
-    [self creatDismisBtn];
-    [self creatTextField];
-    
 }
 #pragma mark 创建dismis按钮
+
+
 - (void)creatDismisBtn {
     UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(20, 20, 50, 30)];
     [btn setTitle:@"取消" forState:UIControlStateNormal];
@@ -69,7 +80,7 @@
     iconImageView.userInteractionEnabled = YES;
     iconImageView.layer.borderColor = [[UIColor orangeColor] CGColor];
     iconImageView.layer.cornerRadius = SCR_W / 10;
-    [iconImageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://10.5.155.200/Images/User/HeaderImage/d903ddcd-6eb2-44f1-a23d-fd772f6d4cbf635866595581582447.jpg"]] placeholderImage:[UIImage imageNamed:@"xiaoren"]];
+    [iconImageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://10.5.155.200%@",_data[@"HeaderImage"]]] placeholderImage:[UIImage imageNamed:@"xiaoren"]];
     
 //    iconImageView.image = [UIImage imageNamed:@"xiaoren"];
 //    iconImageView.backgroundColor = [UIColor redColor];
@@ -300,9 +311,17 @@
         if (error) {
             NSLog(@"Error: %@", error);
         }
+        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data options:nil error:nil];
         
-        NSString *resString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSLog(@"%@", resString);
+        
+        NSUserDefaults *userdefult = [NSUserDefaults standardUserDefaults];
+        
+        
+        
+        [userdefult setObject:dictionary forKey:@"USER_INFO"];
+//        [self loadData];
+//        [iconImageView reloadInputViews];
+        
         
     }];
     [task resume];

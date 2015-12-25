@@ -14,6 +14,8 @@
 
 //修改个人信息
 #import "ChangeInfoViewController.h"
+//用户二维码
+#import "CRCCodeViewController.h"
 
 #define SCR_W [UIScreen mainScreen].bounds.size.width
 #define SCR_H [UIScreen mainScreen].bounds.size.height
@@ -126,7 +128,10 @@
             }
                 break;
             case 1: {
-                
+                CRCCodeViewController *crcCode = [[CRCCodeViewController alloc] init];
+                [self presentViewController:crcCode animated:YES completion:^{
+                    
+                }];
             }
                 break;
             case 2: {

@@ -277,8 +277,6 @@
 
 - (void)textFieldTextChange:(UITextField *)textField
 {
-
-//    NSLog(@"%ld",textField.tag);
     if (textField.text.length != 0) {
         self.chang = NO;
     } else {

@@ -10,6 +10,7 @@
 #import "DeviceTableViewCell.h"
 #import "AppDelegate.h"
 #import "LeftViewController.h"
+#import <UIImageView+WebCache.h>
 
 //群组选择小界面
 #import "GroupOptionViewController.h"
@@ -31,13 +32,38 @@
     
 }
 #pragma mark-用titleBtn添加到titleView
-- (void)viewWillAppear:(BOOL)animated {
+- (void)viewDidAppear:(BOOL)animated {
     [self creatTitleBtn];
     [self creatRightBarbutton];
-    UIBarButtonItem *btn = [[UIBarButtonItem alloc] initWithTitle:@"doubi" style:UIBarButtonItemStylePlain target:self action:@selector(click)];
-    self.parentViewController.navigationItem.leftBarButtonItem = btn;
+    
+    
+//    UIBarButtonItem *btn = [[UIBarButtonItem alloc] initWithTitle:@"doubi" style:UIBarButtonItemStylePlain target:self action:@selector(click)];
+    
+    
+//    UIBarButtonItem *btn = [[UIBarButtonItem alloc] initWithCustomView:leftImageView];
+//            self.parentViewController.navigationItem.leftBarButtonItem = btn;
+    
+    NSUserDefaults *userdefults = [NSUserDefaults standardUserDefaults];
+    
+    NSDictionary *dictionary = [userdefults objectForKey:@"USER_INFO"];
+    NSDictionary *data = dictionary[@"Data"];
+    UIImageView *leftImageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 40, 40)];
+    [leftImageView sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"http://10.5.155.200%@",data[@"HeaderImage"]]] placeholderImage:[UIImage imageNamed:@"xiaoren"]];
+    leftImageView.layer.cornerRadius = 20;
+    leftImageView.clipsToBounds = YES;
+    leftImageView.userInteractionEnabled = YES;
+    leftImageView.layer.borderColor = [[UIColor blueColor] CGColor];
+    leftImageView.layer.borderWidth = 1;
+    
+    //创建手势
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(click)];
+    [leftImageView addGestureRecognizer:tap];
+    UIBarButtonItem *barButton = [[UIBarButtonItem alloc] initWithCustomView:leftImageView];
+    self.parentViewController.navigationItem.leftBarButtonItem = barButton;
+   
 }
 - (void)click {
+    NSLog(@"==================");
     AppDelegate *delegate = (AppDelegate *)[[UIApplication sharedApplication]delegate];
     YRSideViewController *sideViewController = [delegate sideViewController];
     [sideViewController setRootViewMoveBlock:^(UIView *rootView, CGRect orginFrame, CGFloat xoffset) {
